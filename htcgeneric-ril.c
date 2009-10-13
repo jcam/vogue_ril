@@ -1793,6 +1793,7 @@ static void requestSetupDefaultPDP(void *data, size_t datalen, RIL_Token t)
 	long buffSize, len;
 	int retry = 10;
 	char *response[2] = { "1", PPP_TTY_PATH };
+	int mypppstatus;
 
 	apn = ((const char **)data)[0];
 	user = ((char **)data)[1];
