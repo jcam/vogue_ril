@@ -1019,7 +1019,7 @@ static void requestGetCurrentCalls(void *data, size_t datalen, RIL_Token t)
 		LOGI("Audio Close\n");
 		writesys("audio","5");
 	}
-
+/*
 	fd = open("/smodem/live",O_RDONLY);
 	if(fd < 0)
 		LOGE("Couldn't open the connection up/down information\n");
@@ -1043,7 +1043,7 @@ static void requestGetCurrentCalls(void *data, size_t datalen, RIL_Token t)
 	}
 	else if(countCalls==1 && countValidCalls==0 && !dataCall) //unexpected data call... kill it
 		at_send_command("ATH", NULL);
-
+*/
 
 	RIL_onRequestComplete(t, RIL_E_SUCCESS, pp_calls,
 			countValidCalls * sizeof (RIL_Call *));
