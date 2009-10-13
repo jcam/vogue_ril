@@ -544,6 +544,7 @@ static void requestOrSendPDPContextList(RIL_Token *t)
 		responses[0].apn = "internet";
 		responses[0].address = "";
 	}
+/* Remove any smodem control stuff - this is non-standard
 
 	fd = open("/smodem/live",O_RDONLY);
 	if(fd < 0)
@@ -564,7 +565,7 @@ static void requestOrSendPDPContextList(RIL_Token *t)
 	}
 	else
 		responses[0].active = dataCall;
-
+*/
 	if (t != NULL)
 		RIL_onRequestComplete(*t, RIL_E_SUCCESS, responses,
 				n * sizeof(RIL_PDP_Context_Response));
@@ -1550,6 +1551,7 @@ static void requestRegistrationState(int request, void *data,
 			count = 4;
 		}
 	}
+	/*
 	fd = open("/smodem/status",O_RDONLY);
 	if(fd < 0)
 		LOGE("Couldn't open the connection allow/disallow information\n");
@@ -1561,8 +1563,9 @@ static void requestRegistrationState(int request, void *data,
 		else
 			dataCall = 1;
 	}
+
 	if (request == RIL_REQUEST_GPRS_REGISTRATION_STATE && dataCall == 0)
-		response[0] = 3;
+		response[0] = 3; Dont modify response */
 	asprintf(&responseStr[0], "%d", response[0]);
 	asprintf(&responseStr[1], "%d", response[1]);
 	asprintf(&responseStr[2], "%d", response[2]);
@@ -1807,7 +1810,7 @@ static void requestSetupDefaultPDP(void *data, size_t datalen, RIL_Token t)
 			pass = "dummy";
 	} else
 		pass = "dummy";
-
+	/*
 	LOGD("requesting data connection to APN '%s'\n", apn);
 	i=0;
 	while((fd = open("/etc/ppp/ppp-gprs.pid",O_RDONLY)) > 0) {
@@ -1823,7 +1826,7 @@ static void requestSetupDefaultPDP(void *data, size_t datalen, RIL_Token t)
 			goto error;
 		i++;
 		sleep(1);
-	}
+	} */
 	if(isgsm) {
 		asprintf(&cmd, "AT+CGDCONT=1,\"IP\",\"%s\",,0,0", apn);
 		//FIXME check for error here
@@ -1855,6 +1858,11 @@ static void requestSetupDefaultPDP(void *data, size_t datalen, RIL_Token t)
 		at_response_free(p_response);
 	}
 
+	/* Where do I find out the dev name? Set to /dev/smd1 for now */
+	mypppstatus = system("/bin/pppd /dev/smd1");
+	if (mypppstatus < 0)
+		goto error;
+/*
 	asprintf(&userpass, "%s * %s", user, pass);
 	len = strlen(userpass);
 	fd = open("/etc/ppp/pap-secrets",O_WRONLY);
@@ -1901,7 +1909,7 @@ static void requestSetupDefaultPDP(void *data, size_t datalen, RIL_Token t)
 		goto error;
 	write(fd, "startppp", 8);
 	close(fd);
-
+*/
 	RIL_onRequestComplete(t, RIL_E_SUCCESS, response, sizeof(response));
 	return;
 
@@ -1931,14 +1939,11 @@ static void requestDeactivateDefaultPDP(void *data, size_t datalen, RIL_Token t)
 		}
 		at_response_free(p_response);
 	}
+
 	i=0;
 	while((fd = open("/etc/ppp/ppp-gprs.pid",O_RDONLY)) > 0) {
 		if(i%5 == 0) {
-			fd2 = open("/smodem/control",O_WRONLY);
-			if(fd2 < 0)
-				goto error;
-			write(fd2, "killppp", 7);
-			close(fd2);
+			system("killall pppd");
 		}
 		close(fd);
 		if(i>25)
@@ -3752,7 +3757,7 @@ static void onCancel (RIL_Token t)
 
 static const char * getVersion(void)
 {
-	return "HTC Vogue Community RIL 0.8";
+	return "HTC Vogue Community RIL 0.8 [mdrobnak-1]";
 }
 
 	static void
