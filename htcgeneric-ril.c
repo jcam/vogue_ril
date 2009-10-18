@@ -1858,11 +1858,13 @@ static void requestSetupDefaultPDP(void *data, size_t datalen, RIL_Token t)
 		}
 		at_response_free(p_response);
 	}
-
-	/* Where do I find out the dev name? Set to /dev/smd1 for now */
+	// The modem replies immediately even if it's not connected!
+	// so wait a short time.
+	sleep(20);
 	mypppstatus = system("/bin/pppd /dev/smd1");
 	if (mypppstatus < 0)
 		goto error;
+	sleep(1); // allow time for ip-up to run
 /*
 	asprintf(&userpass, "%s * %s", user, pass);
 	len = strlen(userpass);
